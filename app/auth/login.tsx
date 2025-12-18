@@ -2,7 +2,7 @@ import Logo from '../../components/logo/Logo';
 import { useState } from "react";
 import { View, Text, TouchableOpacity, Alert, KeyboardAvoidingView, ScrollView, Platform } from "react-native";
 import { useRouter } from "expo-router";
-import { useAuth } from '@/contexts/authStore';
+import { useAuth } from '@/contexts/AuthContext';
 import Button from '@/components/common/Button';
 import Input from '@/components/common/Input';
 import OTPInput from '@/components/common/OTPInput';
@@ -12,7 +12,9 @@ import { User, Users } from 'lucide-react-native';
 
 export default function Login() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, user } = useAuth();
+  
+  
   
   const [step, setStep] = useState(1);
   const [email, setEmail] = useState("");
@@ -42,6 +44,7 @@ export default function Login() {
       
       setOtpMsg(""); 
       await login(data.user, data.token);
+      router.replace("/");
     } catch {
       Alert.alert('Verify OTP Error', 'something went wrong in server');
     } finally { setLoading(false); }

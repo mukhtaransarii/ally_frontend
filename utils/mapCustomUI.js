@@ -40,7 +40,7 @@ export const customStyle = [
   {
     "featureType": "road.highway",
     "elementType": "geometry",
-    "stylers": [{ "color": "#9CA3AF" }]
+    "stylers": [{ "color": "#FFE981" }]
   },
   {
     "featureType": "road.highway",
@@ -59,7 +59,7 @@ export const customStyle = [
   {
     "featureType": "road.local",
     "elementType": "geometry",
-    "stylers": [{ "color": "#F8FAFC" }]
+    "stylers": [{ "color": "#FFFFFF" }]
   },
 
   /* Buildings (soft depth illusion) */
@@ -80,7 +80,7 @@ export const customStyle = [
   {
     "featureType": "water",
     "elementType": "geometry",
-    "stylers": [{ "color": "#A9D8F3" }]
+    "stylers": [{ "color": "#A1DAFB" }]
   },
 
   /* Railway lines */
@@ -89,7 +89,7 @@ export const customStyle = [
     "elementType": "geometry",
     "stylers": [
       { "visibility": "on" },
-      { "color": "#d8d8d8" },
+      { "color": "#c5ccd3" },
       { "weight": 1.4 }
     ]
   },

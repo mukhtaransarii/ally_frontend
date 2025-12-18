@@ -1,10 +1,8 @@
-// Update User Location (pickup) continuesly when move
-
 import { useEffect } from "react";
-import { usePartner } from "@/contexts/PartnerContext";
+import { useTrip } from "@/contexts/TripContext";
 
 export default function useCompanionLocation() {
-  const { companion, setCompanion } = usePartner();
+  const { companion, setCompanion } = useTrip();
 
   useEffect(() => {
     if (!companion) return;

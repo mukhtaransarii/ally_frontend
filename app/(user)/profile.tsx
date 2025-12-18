@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Alert, ScrollView, TouchableOpacity, Image } from 'react-native';
 import Button from '@/components/common/Button.jsx';
-import { useAuth } from '@/contexts/authStore';
+import { useAuth } from '@/contexts/AuthContext';
 import { User, Mail, Phone, MapPin, Calendar, Edit2, LogOut, Shield, Heart, Navigation,
   CreditCard, Settings, HelpCircle, Bell
 } from 'lucide-react-native';

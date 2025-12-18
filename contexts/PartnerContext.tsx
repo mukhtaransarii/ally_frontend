@@ -1,25 +1,22 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState } from "react";
+import useSecureState from "@/hooks/useSecureState";
 
-const PartnerContext = createContext()
+const PartnerContext = createContext();
 
-export const PartnerProvider = ({children}) => {
-  const [companion, setCompanion] = useState(null)
-  const [parCurLoc, setParCurLoc] = useState(null)
-  const [step, setStep] = useState(1)
-  
-  console.log("id:", "PartnerContext")
-  console.log("parCurLoc:", parCurLoc)
+export const PartnerProvider = ({ children }) => {
+  const [partnerLocation, setPartnerLocation] = useSecureState("partnerLocation", null);
+  const [step, setStep] = useState(1);   // UI / flow only
+
   return (
     <PartnerContext.Provider
       value={{
-       companion, setCompanion,
-       parCurLoc, setParCurLoc,
-       step, setStep,
-      }}
-    >
-     {children}   
+        partnerLocation, setPartnerLocation,
+        step, setStep,
+        
+      }}>
+    {children}
     </PartnerContext.Provider>
   );
-}
+};
 
-export const usePartner = () => useContext(PartnerContext)
+export const usePartner = () => useContext(PartnerContext);

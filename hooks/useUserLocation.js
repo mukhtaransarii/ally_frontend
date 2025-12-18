@@ -4,13 +4,13 @@ import { useUser } from "@/contexts/UserContext";
 // import { reverseGeocode } from "@/utils/SearchAddress";
 
 export default function useUserLocation() {
-  const { pickup, followUserLocation, setPickup, step } = useUser();
+  const { pickup, setPickup, step } = useUser();
 
   useEffect(() => {
     let subscriber;
 
     const startTracking = async () => {
-      if (!followUserLocation && step !== 3) return;
+      if (step !== 3) return;
 
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") return;
@@ -21,8 +21,6 @@ export default function useUserLocation() {
           timeInterval: 2000,
         },
         async (loc) => {
-          if (!followUserLocation) return;
-
           const lat = loc.coords.latitude;
           const lng = loc.coords.longitude;
 
@@ -39,5 +37,5 @@ export default function useUserLocation() {
 
     startTracking();
     return () => subscriber?.remove();
-  }, [followUserLocation]);
+  }, []);
 }

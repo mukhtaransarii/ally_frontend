@@ -5,13 +5,13 @@ import UserMapView from '@/components/UserMapView';
 import { usePartner } from '@/contexts/PartnerContext'
 
 export default function Index() {
-  const { step, parCurLoc, } = usePartner();
-  console.log("parCurLoc from imdex:", parCurLoc)
+  const { step, partnerLocation, } = usePartner();
+  console.log('partnerLocation from.index :', partnerLocation)
   
   return (
     <View className="flex-1">
       <UserMapView  
-       marker1={parCurLoc}
+       marker1={partnerLocation}
       />
       {step === 1 &&  <GoOnlineToggle/> }
     </View>

@@ -6,7 +6,12 @@ export default function usePolyline(pickup, companion, setDistance, setEta) {
   const [routeCoords, setRouteCoords] = useState([]);
 
   useEffect(() => {
-    if (!pickup || !companion) return;
+    if (!pickup || !companion) {
+      setRouteCoords([]);
+      setDistance(null);
+      setEta(null);
+      return;
+    }
 
     const fetchRoute = async () => {
       try {

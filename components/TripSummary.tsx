@@ -1,137 +1,118 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, ScrollView, Alert, Image } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, ScrollView, TouchableOpacity, Alert, Image } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+
+import { useTrip } from "@/contexts/TripContext";
 import { useUser } from "@/contexts/UserContext";
-import { usePartner } from "@/contexts/PartnerContext";
-import { useAuth } from "@/contexts/authStore";
-import { reverseGeocode } from "../utils/SearchAddress";
+import { deleteSecure } from "@/hooks/useSecureStore";
+import { reverseGeocode } from "@/utils/SearchAddress";
 
 export default function TripSummary() {
-  const { pickup, rate, setStep, eta, distance } = useUser();
-  const { companion } = usePartner();
-  const { user } = useAuth();
+  const { companions, setCompanions, setSelectedCompanion } = useTrip();
+  const { setPickup, setStep, distance, eta } = useUser();
 
-  const [companionAddress, setCompanionAddress] = useState(null);
+  const [addresses, setAddresses] = useState({});
 
   useEffect(() => {
-    if (!companion?.lat || !companion?.lng) return;
+    if (!companions?.length) return;
 
-    const getCompanionAddress = async () => {
-      try {
-        const address = await reverseGeocode(companion.lat, companion.lng);
-        if (address) {
-          setCompanionAddress({
-            display_name: address.display_name,
-            address: address.address,
-          });
-        }
-      } catch (err) {
-        console.log("error getCompanionAddress", err);
-      }
-    };
+    companions.forEach(async (c) => {
+      if (!c?.lat || !c?.lng) return;
 
-    getCompanionAddress();
-  }, [companion?.lat, companion?.lng]);
+      const addr = await reverseGeocode(c.lat, c.lng);
 
-  const handleContinueTrip = () => {
-    Alert.alert("Confirm Trip", "Trip is confirmed", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Confirm & Pay",
-        onPress: () => setStep(3),
-      },
-    ]);
+      setAddresses((prev) => ({
+        ...prev,
+        [c._id]: addr,
+      }));
+    });
+  }, [companions]);
+
+  const handleBack = async () => {
+    await deleteSecure("pickup");
+    await deleteSecure("companions");
+    await deleteSecure("selectedCompanion");
+
+    setPickup(null);
+    setCompanions([]);
+    setSelectedCompanion(null);
+    setStep(1);
   };
 
-  const formatFullAddress = (location) => {
-    if (!location?.address) return "Location not set";
-
-    const addr = location.address;
-    const parts = [
-      addr.road,
-      addr.suburb,
-      addr.neighbourhood,
-      addr.city || addr.town || addr.village,
-      addr.state,
-      addr.postcode,
-    ].filter(Boolean);
-
-    return parts.join(", ");
+  const handleContinueTrip = () => {
+    Alert.alert("Confirm Trip", "Trip is confirmed");
   };
 
   return (
     <View className="absolute bottom-0 w-full bg-white rounded-t-3xl shadow-2xl">
-      {/* Header */}
-      <View className="p-6 border-b border-gray-200">
-        <Text className="text-2xl font-bold text-gray-900">Trip Summary</Text>
+      <View className="px-6 py-4">
+        <Text className="text-xl font-bold text-gray-900">Trip Summary</Text>
+        <Text className="text-sm text-gray-500">Select a companion</Text>
       </View>
 
-      <ScrollView className="max-h-96" showsVerticalScrollIndicator={false}>
-        <View className="p-6 flex gap-2">
+      <ScrollView className="max-h-[360px]">
+        <View className="px-6 gap-4">
+          {companions.map((c) => {
+            const addr = addresses[c._id];
 
-            {/* Companion Card */}
-            <View className="flex-row gap-4 items-start">
-              <Image
-                source={{ uri: companion?.avatar }}
-                className="w-10 h-10 rounded-full"
-              />
-              <View className="flex-1">
-                <View className="flex-row items-center gap-2">
-                  <Text className="text-lg font-bold text-gray-900 leading-none">{companion?.name}</Text>
-                  <Text className="text-purple-700 bg-purple-50 border border-purple-100 rounded px-1 text-xs font-semibold">{companion?.role}</Text>
+            return (
+              <TouchableOpacity
+                key={c._id}
+                onPress={() => setSelectedCompanion(c)}
+                className="flex-row gap-3 border border-gray-200 rounded-xl p-3"
+              >
+                <Image source={{ uri: c.avatar }}
+                  className="w-11 h-11 rounded-full"
+                />
+
+                <View className="flex-1 gap-1">
+                  <View className="flex-row items-center gap-2">
+                    <Text className="text-base font-semibold text-gray-900">{c.name}</Text>
+                    <Text className="text-[10px] px-1 rounded bg-purple-50 text-purple-700 font-semibold">{c.gender}</Text>
+                  </View>
+                  {/* <Text className="text-xs text-gray-600">{c.bio}</Text> */}
+                  
+                  <View>
+                    <Text className="text-sm text-gray-700">{addr?.display_name}</Text>
+                    <Text className="text-sm text-gray-500">
+                      {[
+                        addr?.address.road,
+                        addr?.address.suburb,
+                        addr?.address.city || addr?.address.town || addr?.address.village,
+                        addr?.address.state,
+                      ].filter(Boolean).join(", ")}
+                    </Text>
+                  </View>
+                    
+  
+                  <View className="flex-row items-center gap-1 mt-1">
+                    <Ionicons name="location-outline" size={12} color="#000" />
+                    <Text className="text-[11px] text-gray-700">{distance || "00km"} • {eta || "00m"}</Text>
+                  </View>
                 </View>
-                <Text className="text-gray-700">{companionAddress?.display_name}</Text>
-                <Text className="text-gray-500">{formatFullAddress(companionAddress)}</Text>
-              </View>
-            </View>
-
-            {/* Connection Line */}
-            <View className="flex gap-1">
-              <View className="w-1 h-2 ml-5 bg-green-500 rounded"></View>
-              <View className="w-1 h-2 ml-5 bg-green-500 rounded"></View>
-              <View className="w-1 h-2 ml-5 bg-green-500 rounded"></View>
-            </View>
-
-            {/* User Card */}
-            <View className="flex-row gap-4 items-start">
-              <Image
-                source={{ uri: user?.avatar }}
-                className="w-10 h-10 rounded-full"
-              />
-              <View className="flex-1">
-                <View className="flex-row items-center gap-2">
-                  <Text className="text-lg font-bold text-gray-900 leading-none">{user?.name}</Text>
-                  <Text className="text-green-700 bg-green-50 border border-green-100 rounded px-1 text-xs font-semibold">{user?.role}</Text>
-                </View>
-                <Text className="text-gray-700">{pickup?.humanAddress?.display_name}</Text>
-                <Text className="text-gray-500">{formatFullAddress(pickup?.humanAddress)}</Text>
-              </View>
-            </View>
+              </TouchableOpacity>
+            );
+          })}
         </View>
       </ScrollView>
+      
+      {/* Buttons */}
+      <View className="flex-row gap-3 px-6 py-4">
+        <TouchableOpacity
+          onPress={handleBack}
+          className="flex-1 py-3 rounded-xl border border-gray-300"
+        >
+          <Text className="text-center font-semibold text-gray-900">Back</Text>
+        </TouchableOpacity>
 
-      {/* Action Buttons */}
-      <View className="flex-row justify-between gap-3 p-6 border-t border-gray-200">
-          <TouchableOpacity
-            onPress={() => setStep(1)}
-            className="flex-1 bg-white py-3 rounded-xl border border-gray-200"
-            activeOpacity={0.7}
-          >
-            <Text className="text-gray-700 font-bold text-center text-lg">
-              Change Pickup
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={handleContinueTrip}
-            disabled={!rate}
-            activeOpacity={0.8}
-            className="flex-1 bg-green-700 py-3 rounded-xl"
-          >
-            <Text className="text-white font-bold text-center text-lg">
-              Confirm Trip
-            </Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity
+          onPress={handleContinueTrip}
+          disabled={!companions.length}
+          className={`flex-1 py-3 rounded-xl ${companions.length ? "bg-black" : "bg-gray-300"}`}
+        >
+          <Text className="text-center font-semibold text-white">Continue Trip</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }

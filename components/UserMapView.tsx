@@ -21,6 +21,16 @@ export default function UserMapView({marker1, marker2, polyline = []}) {
       800
     );
   }, [marker1]);
+  
+  // Animate map when polyline updates
+  useEffect(() => {
+    if (!mapRef.current || polyline.length === 0) return;
+  
+    mapRef.current.fitToCoordinates(polyline, {
+      edgePadding: { top: 40, right: 80, bottom: 280, left: 80 },
+      animated: true,
+    });
+  }, [polyline]);
 
   return (
     <MapView
