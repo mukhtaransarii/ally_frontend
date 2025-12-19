@@ -82,7 +82,7 @@ export default function EditProfile() {
           
           <TouchableOpacity 
             onPress={pickAvatar} 
-            className="absolute bottom-2 right-24 bg-[#CCF630] w-10 h-10 rounded-full items-center justify-center border-2 border-white">
+            className="absolute bottom-2 right-[33%] bg-[#CCF630] w-10 h-10 rounded-full items-center justify-center border-2 border-white">
             <Camera size={18} color="#333"/>
           </TouchableOpacity>
         </View>

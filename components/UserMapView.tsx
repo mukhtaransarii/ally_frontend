@@ -52,7 +52,7 @@ export default function UserMapView({marker1, marker2, polyline = []}) {
     >
       {marker1 && (
         <Marker coordinate={{ latitude: marker1?.lat, longitude: marker1?.lng }}>
-          <Ionicons name="location" size={30} color="#000000" />
+          <Ionicons name="location" size={28} color="#000000" />
         </Marker>
       )}
 

@@ -5,7 +5,7 @@ const TripContext = createContext();
 
 export const TripProvider = ({ children }) => {
   const [companions, setCompanions] = useSecureState("companions", []); 
-  const [selectedCompanion, setSelectedCompanion] = useSecureState("companion", null); 
+  const [selectedCompanion, setSelectedCompanion] = useSecureState("selectedCompanion", null); 
 
   return (
     <TripContext.Provider value={{ 

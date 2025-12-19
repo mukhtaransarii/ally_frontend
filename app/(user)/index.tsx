@@ -10,18 +10,18 @@ import useUserLocation from '@/hooks/useUserLocation';       // ✅ user trackin
 import useCompanionLocation from '@/hooks/useCompanionLocation'; // ✅ companion movement
 
 export default function UserMainPage() {
-  const { step, pickup, setDistance, setEta } = useUser();
+  const { step, pickup } = useUser();
   const { companions, selectedCompanion } = useTrip();
   
   useUserLocation();       
   useCompanionLocation(); 
-  const { routeCoords } = usePolyline(pickup, selectedCompanion, setDistance, setEta); // pass props
+  const { routeCoords } = usePolyline(pickup, selectedCompanion); // pass props
 
   return (
     <View className="flex-1">
       <UserMapView
         marker1={pickup}
-        marker2={companions[0]}
+        marker2={selectedCompanion}
         polyline={routeCoords}
       /> 
       
