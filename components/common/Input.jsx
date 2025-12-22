@@ -9,9 +9,9 @@ export default function Input({
   ...props 
 }) {
   return (
-    <View className="">
+    <View>
       {label && (
-        <Text className="text-sm font-medium text-secondary">{label}</Text>
+        <Text className="text-sm font-medium text-secondary mb-1">{label}</Text>
       )}
       <TextInput
         className={`

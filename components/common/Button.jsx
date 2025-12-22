@@ -14,7 +14,7 @@ export default function Button({
       disabled={disabled || loading}
       className={` ${className}
         p-4 rounded-lg 
-        ${variant === 'primary' ? 'bg-[#CCF630]' : 'bg-gray-100'}
+        ${variant === 'primary' ? 'bg-[#000000]' : 'bg-gray-300'}
         ${disabled ? 'bg-gray-300' : ''}
         ${(disabled || loading) ? 'opacity-60' : 'active:opacity-80'}
       `}

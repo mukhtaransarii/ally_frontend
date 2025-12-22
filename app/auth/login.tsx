@@ -14,8 +14,6 @@ export default function Login() {
   const router = useRouter();
   const { login, user } = useAuth();
   
-  
-  
   const [step, setStep] = useState(1);
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
@@ -153,7 +151,7 @@ export default function Login() {
                   title={loading ? "Verifying..." : exists ? "Login" : "Create Account"}
                   onPress={handleVerifyOtp}
                   loading={loading}
-                  disabled={!otp || otp.length < 6 || loading}
+                  disabled={!otp || otp.length < 4 || loading}
                   variant="primary"
                 />
 

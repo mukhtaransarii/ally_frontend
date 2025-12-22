@@ -2,7 +2,7 @@ import { View, TextInput } from 'react-native';
 import { useState, useRef } from 'react';
 
 export default function OTPInput({ onComplete }) {
-  const [otp, setOtp] = useState(['', '', '', '', '', '']);
+  const [otp, setOtp] = useState(['', '', '', '']);
   const inputs = useRef([]);
 
   const handleChange = (text, index) => {
