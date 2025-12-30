@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { View, Text, ScrollView, TouchableOpacity, Alert, Image, Dimensions } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTrip } from "@/contexts/TripContext";
@@ -6,18 +6,26 @@ import { useUser } from "@/contexts/UserContext";
 import { deleteSecure } from "@/hooks/useSecureStore";
 import { reverseGeocode } from "@/utils/SearchAddress";
 import { getRoute } from "@/utils/getRoute";
-
+import axios from 'axios'
+import { BASE_URL } from '@/env.js'
+import { useAuth } from '@/contexts/AuthContext'
+import { getSocket } from '@/utils/socket'
 
 export default function TripSummary() {
-  const { pickup, setPickup, setStep } = useUser();
-  const { companions, setCompanions, selectedCompanion, setSelectedCompanion } = useTrip();
+  const { token } = useAuth();
+  const { pickup, setPickup, setStep, step } = useUser();
+  const { companions, setCompanions, selectedCompanion, setSelectedCompanion, setTrip } = useTrip();
+  const [message, setMessage] = useState('')
   
   const { height } = Dimensions.get("window");
 
   // Cal Address, Distance & Duration
   useEffect(() => {
-    if (!companions.length || !pickup || companions[0].address) return;
-    
+    if (!pickup || !companions.length) return;
+  
+    const hasEnriched = companions[0]?.distance && companions[0]?.duration;
+    if (hasEnriched) return;
+  
     const loadData = async () => {
       const result = await Promise.all(
         companions.map(async (c) => {
@@ -29,16 +37,16 @@ export default function TripSummary() {
             ...c,
             address: addr,
             distance: r.distance >= 1000 ? `${(r.distance / 1000).toFixed(1)}km` : `${Math.round(r.distance)}m`,
-            duration: r.duration >= 3600 ? `${Math.floor(r.duration/3600)}h ${Math.floor((r.duration%3600)/60)}m` : `${Math.floor(r.duration/60)}m`
+            duration: r.duration >= 3600 ? `${Math.floor(r.duration / 3600)}h ${Math.floor((r.duration % 3600) / 60)}m` : `${Math.floor(r.duration / 60)}m`,
           };
         })
       );
       setCompanions(result);
     };
+   
     loadData();
   }, [pickup]);
-  
-  
+
   
   // Handle Back
   const handleBack = async () => {
@@ -52,36 +60,58 @@ export default function TripSummary() {
     setStep(1);
   };
   
-  // Handle Continue
-  const handleContinueTrip = () => {
-  Alert.alert(
-    "Confirm Trip", 
-    `Would you like to continue with ${selectedCompanion.name}?\n\n${selectedCompanion.name} will reach in ${selectedCompanion.duration} at your location.`,
-    [
-      {
-        text: "Cancel",
-        style: "cancel",
-        onPress: () => console.log("Trip cancelled")
-      },
-      {
-        text: "Confirm",
-        style: "default",
-        onPress: () => console.log("Trip confirmed with", selectedCompanion.name);
-      }
-    ],
-    { cancelable: true } // Allows tapping outside to dismiss
-  );
-};
+  const HandleConfirm = () => {
+    Alert.alert(
+     "Confirm Trip",
+     "would you like to.continue trip?",
+     [
+       {
+         text: 'Cancel',
+         style: 'cancel'
+       },
+       {
+         text: 'Continue',
+         style: 'default',
+         onPress: () => handleContinueTrip()
+       }
+     ]
+    )
+  }
   
+  // Handle Continue
+  const handleContinueTrip = async () => {
+    if (!selectedCompanion) return;
+    
+    try {
+      const { data } = await axios.post(`${BASE_URL}/api/trip/confirm`,
+        {
+          companionId: selectedCompanion._id,
+          pickup,
+          distance: selectedCompanion.distance,
+          duration: selectedCompanion.duration
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+      if(!data.success) setMessage(data.message)
+      setTrip(data.trip)
+      setStep(3);
+      setMessage('')
+    } catch (e) {
+      Alert.alert("Error Something went wrong", e);
+    }
+  };
 
+  
   return (
     <View className="absolute bottom-0 w-full bg-white rounded-t-3xl shadow-2xl">
+      {message && <Text className="bg-red-500 px-2 py-1 text-white rounded text-sm mb-2 text-center">{message}</Text>}
+      
       <View className="px-6 py-4">
-        <Text className="text-xl font-bold text-gray-900">Select a companion</Text>
-        <Text className="text-sm text-gray-500">companions near you ({companions.length})</Text>
+        <Text className="text-xl font-bold text-gray-900">Trip Summary</Text>
+        <Text className="text-sm text-gray-500">select companion from list ({companions.length})</Text>
       </View>
 
-      <ScrollView style={{ maxHeight: height * 0.35 }}>
+      <ScrollView style={{ maxHeight: height * 0.35 }} showsVerticalScrollIndicator={false}>
         <View className="px-6 gap-4">
           {companions.map((c) => (
               <TouchableOpacity
@@ -130,7 +160,7 @@ export default function TripSummary() {
                   </View>
                   <View className="bg-gray-100 rounded-lg p-2 mb-2">
                    <Text className="text-xs mb-1 text-gray-500">Bio</Text>
-                   <Text className="text-xs">
+                   <Text className="text-sm">
                       {c.bio.trim('').match(/(#[^\s#]+|\S+|\s+)/g)?.map((segment, index) => {
                         if (segment.startsWith('#')) {
                           return (
@@ -143,7 +173,7 @@ export default function TripSummary() {
                       })}
                     </Text>
                  </View>  
-                 <Text numberOfLines={2} className="text-xs text-gray-600 leading-none">{c.address?.display_name ||"Fetching address..."}</Text>
+                 <Text numberOfLines={2} className="text-sm text-gray-600 leading-none">{c.address?.display_name ||"Fetching address..."}</Text>
                 </View>
               </TouchableOpacity>
             ))}
@@ -160,7 +190,7 @@ export default function TripSummary() {
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPress={handleContinueTrip}
+          onPress={HandleConfirm}
           disabled={!selectedCompanion}
           className={`flex-1 py-3 rounded-xl ${selectedCompanion ? "bg-black" : "bg-gray-300"}`}
         >

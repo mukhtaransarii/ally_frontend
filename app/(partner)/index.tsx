@@ -1,19 +1,34 @@
-import { useState } from 'react';
-import { View } from 'react-native';
-import GoOnlineToggle from '@/components/GoOnlineToggle';
-import UserMapView from '@/components/UserMapView';
+import { useState, useEffect } from 'react';
+import { View, Alert, Text } from 'react-native';
+import axios from 'axios'
+import { BASE_URL } from '@/env.js'
 import { usePartner } from '@/contexts/PartnerContext'
+import { useTrip } from '@/contexts/TripContext'
+import { useAuth } from "@/contexts/AuthContext"
+import { getSocket } from '@/utils/socket'
+import usePolyline from '@/hooks/usePolyline'
+import MapView from '@/components/MapView';
+import GoOnlineToggle from '@/components/partner/GoOnlineToggle';
+import TripNotification from '@/components/partner/TripNotification';
 
 export default function Index() {
-  const { step, partnerLocation, } = usePartner();
-  console.log('partnerLocation from.index :', partnerLocation)
+  const { partnerStep, setPartnerStep, partnerLocation, } = usePartner();
+  const { setTrip, trip, userCreatedTrip, setUserCreatedTrip } = useTrip(); 
+  const { user, token } = useAuth(); 
+  
+  
+  const { routeCoords } = usePolyline(partnerLocation, trip?.pickup); // pass props
   
   return (
     <View className="flex-1">
-      <UserMapView  
+      <MapView  
        marker1={partnerLocation}
+       marker2={trip?.pickup}
+       polyline={routeCoords}
       />
-      {step === 1 &&  <GoOnlineToggle/> }
+      
+      {partnerStep === 1 && !trip &&  <GoOnlineToggle/> }
+      {trip?.status === 'pending' && <TripNotification/>}
     </View>
   );
 }

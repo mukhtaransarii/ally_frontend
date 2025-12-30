@@ -1,14 +1,36 @@
+import { useEffect } from 'react'
 import { Tabs, Redirect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "@/contexts/AuthContext";
+import { getSocket } from "@/utils/socket";
+import { useTrip } from "@/contexts/TripContext"
+import { useUser } from "@/contexts/UserContext";
 
 export default function UserLayout() {
   const { user } = useAuth();
+  const { trip, setTrip, selectedCompanion, setSelectedCompanion, setCompanions } = useTrip();
+  const { setStep, setPickup } = useUser();;
 
   if (!user || user.role !== "user") {
     return <Redirect href="/auth/login" />;
   }
-
+  
+  useEffect(() => {
+    const socket = getSocket();
+    
+    socket.on("trip_cancelled", () => {
+      setTrip(null)
+      setSelectedCompanion(null)
+      setCompanions([])
+      setPickup(null)
+      setStep(1)
+    });
+  
+    return () => {
+      socket.off("trip_cancelled")
+    }
+  }, []);
+  
   return (
     <Tabs
       screenOptions={{

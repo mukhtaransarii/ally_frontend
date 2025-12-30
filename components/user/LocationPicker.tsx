@@ -60,7 +60,7 @@ export default function LocationPicker() {
     
       <View className="bg-white rounded-2xl p-4 ">
         <View className="flex-row items-center gap-2">
-        
+       
           {/* Label & Location */}
           <View className="flex-1">
             <Text className="text-xs text-zinc-500 mb-1">Continue with your current location</Text>

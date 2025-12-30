@@ -10,7 +10,7 @@ export default function useUserLocation() {
     let subscriber;
 
     const startTracking = async () => {
-      if (step !== 3) return;
+      if (step !== 5) return;
 
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") return;

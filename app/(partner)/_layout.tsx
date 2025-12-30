@@ -1,14 +1,37 @@
+import { useEffect } from 'react'
 import { Tabs, Redirect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTrip } from "@/contexts/TripContext";
+import { usePartner } from "@/contexts/PartnerContext";
+import { getSocket } from "@/utils/socket";
 
 export default function PartnerLayout() {
   const { user } = useAuth();
+  const { setTrip } = useTrip();
 
-   if (!user || user.role !== "partner") {
-     return <Redirect href="/auth/login" />;
+  if (!user || user.role !== "partner") {
+    return <Redirect href="/auth/login" />;
   }
-
+  
+  // backend/controller/tripController 
+  useEffect(() => {
+    const socket = getSocket();
+    
+    socket.on("trip_notification", ({trip}) => {
+      setTrip(trip);
+    });
+    
+    socket.on("trip_cancelled", () => {
+      setTrip(null);
+    });
+  
+    return () => {
+      socket.off("trip_notification");
+      socket.off("trip_cancelled")
+    }
+  }, []);
+  
   return (
     <Tabs
       screenOptions={{

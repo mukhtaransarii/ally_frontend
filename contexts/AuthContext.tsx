@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { saveSecure, getSecure, deleteSecure } from "@/hooks/useSecureStore";
 import axios from "axios";
 import { BASE_URL } from "@/env.js";
+import { connectSocket, disconnectSocket } from '@/utils/socket'
 
 const AuthContext = createContext(null);
 
@@ -11,6 +12,12 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   console.log('user from context ', user)
   
+  useEffect(() => {
+    if (user && user._id) {
+      connectSocket(user._id);
+    }
+  }, [user?._id]);
+
   const loadAuth = async () => {
     const savedToken = await getSecure("token");
     if (!savedToken) {
@@ -48,6 +55,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
+    disconnectSocket();
     setUser(null);
     setToken(null);
     await deleteSecure("user");

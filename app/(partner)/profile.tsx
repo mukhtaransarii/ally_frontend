@@ -6,15 +6,22 @@ import { User, Mail, Phone, MapPin, Calendar, Edit2, LogOut, Shield, Heart, Navi
 import { useRouter } from 'expo-router'
 import Header from '@/components/common/Header.jsx'
 import { Ionicons } from "@expo/vector-icons";
-
+import { useTrip } from '@/contexts/TripContext'
 export default function Profile() {
   const { user, logout } = useAuth();
+  const { setTrip, setUserCreatedTrip } = useTrip();
+  
   const router = useRouter()
   
   const handleLogout = () => {
     Alert.alert("Logout", "Are you sure you want to logout?", [
       { text: "Cancel", style: "cancel" },
-      { text: "Logout", onPress: () => logout() },
+      { text: "Logout", onPress: () => {
+         setTrip(null)
+         setUserCreatedTrip(null)
+         logout() 
+        }
+      },
     ]);
   };
 
@@ -28,7 +35,7 @@ export default function Profile() {
         <View className="px-4 border-b border-gray-100">
           {/* Header with Username */}
           <View className="h-14 flex-row items-center justify-between">
-            <Text className="text-xl font-semibold">@{user.username}</Text>
+            <Text className="text-xl font-semibold">@{user?.username}</Text>
             <TouchableOpacity onPress={handleEditProfile}
               className="h-full aspect-square flex justify-center items-end"
             >
@@ -38,14 +45,14 @@ export default function Profile() {
       
           <View className="flex-row items-center gap-4 mb-4">
             {/* Avatar */}
-            <Image source={{ uri: user.avatar }} className="w-20 h-20 rounded-full" />
+            <Image source={{ uri: user?.avatar }} className="w-20 h-20 rounded-full" />
 
   
             {/* User Info */}
             <View className="flex-1">
               <View className="flex-row items-center gap-2 mb-1">
                 <Text className="text-2xl font-bold text-gray-900">{user?.name || 'USER NAME'}</Text>
-                {user.gender === "male" ? (
+                {user?.gender === "male" ? (
                     <Ionicons name="male" size={16} color="#45B6FE" />
                   ) : user.gender === "female" ? (
                     <Ionicons name="female" size={16} color="#FF69B4" />
@@ -82,7 +89,7 @@ export default function Profile() {
           <View className="bg-gray-100 rounded-lg p-2 mb-4">
            <Text className="text-xs mb-1 text-gray-500">Bio</Text>
            <Text>
-              {user.bio.match(/(#[^\s#]+|\S+|\s+)/g)?.map((segment, index) => {
+              {user?.bio?.match(/(#[^\s#]+|\S+|\s+)/g)?.map((segment, index) => {
                 if (segment.startsWith('#')) {
                   return (
                     <Text key={index} style={{ color: '#1DA1F2' }}>
