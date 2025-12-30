@@ -3,13 +3,13 @@ import { View, Text, ScrollView, TouchableOpacity, Alert, Image, Dimensions } fr
 import { Ionicons } from "@expo/vector-icons";
 import { useTrip } from "@/contexts/TripContext";
 import { useUser } from "@/contexts/UserContext";
-import { deleteSecure } from "@/hooks/useSecureStore";
 import { reverseGeocode } from "@/utils/SearchAddress";
 import { getRoute } from "@/utils/getRoute";
 import axios from 'axios'
 import { BASE_URL } from '@/env.js'
 import { useAuth } from '@/contexts/AuthContext'
 import { getSocket } from '@/utils/socket'
+import Toast from "react-native-toast-message";
 
 export default function TripSummary() {
   const { token } = useAuth();
@@ -50,10 +50,6 @@ export default function TripSummary() {
   
   // Handle Back
   const handleBack = async () => {
-    await deleteSecure("pickup");
-    await deleteSecure("companions");
-    await deleteSecure("selectedCompanion");
-
     setPickup(null);
     setCompanions([]);
     setSelectedCompanion(null);
@@ -92,20 +88,21 @@ export default function TripSummary() {
         },
         { headers: { Authorization: `Bearer ${token}` } }
       )
-      if(!data.success) setMessage(data.message)
+      Toast.show({ type: data.success ? "success" : "error", text1: data.message,});
+     
+      if(!data.success) return
+      
       setTrip(data.trip)
       setStep(3);
-      setMessage('')
     } catch (e) {
-      Alert.alert("Error Something went wrong", e);
+      Toast.show({type: "error", text1: "Error Something went wrong"});
     }
   };
 
   
   return (
     <View className="absolute bottom-0 w-full bg-white rounded-t-3xl shadow-2xl">
-      {message && <Text className="bg-red-500 px-2 py-1 text-white rounded text-sm mb-2 text-center">{message}</Text>}
-      
+    
       <View className="px-6 py-4">
         <Text className="text-xl font-bold text-gray-900">Trip Summary</Text>
         <Text className="text-sm text-gray-500">select companion from list ({companions.length})</Text>

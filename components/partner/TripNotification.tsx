@@ -5,6 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { BASE_URL } from '@/env.js'
 import { useAuth } from '@/contexts/AuthContext'
 import axios from 'axios'
+import Toast from "react-native-toast-message";
 
 export default function TripNotification() {
   const { trip, setTrip } = useTrip();
@@ -13,23 +14,33 @@ export default function TripNotification() {
   // cancel by partner 
   const handleCancleTrip = async () => {
     try {
-      const { data } = await axios.post(
-        `${BASE_URL}/api/trip/cancel`,
+      const { data } = await axios.post(`${BASE_URL}/api/trip/cancel`,
         { tripId: trip._id },
         { headers: { Authorization: `Bearer ${token}` } }
       );
   
-      Alert.alert("Success", data.message);
+      Toast.show({type: "success", text1: "You cancelled trip."});
+      
       setTrip(null);
     } catch (err) {
       console.log('Error while cancle trip ', err)
-      Alert.alert( "Error", err.response?.data?.message || "Cancel failed");
+      Toast.show({type: "error", text1: err.response?.data?.message || "Cancel failed"});
     }
   };
     
   
-  const handleAcceptTrip = () => {
-    Alert.alert('trip accept')
+  const handleAcceptTrip = async () => {
+    try {
+      const { data } = await axios.post(`${BASE_URL}/api/trip/accept`,
+        { tripId: trip._id },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      setTrip(data.trip)
+    } catch (err) {
+      console.error(err);
+      Toast.show({type: "error", text1: err.response?.data?.message || "Accept failed"});
+    }
   }
   
   return (

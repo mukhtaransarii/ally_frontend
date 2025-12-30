@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { getSocket } from "@/utils/socket";
 import { useTrip } from "@/contexts/TripContext"
 import { useUser } from "@/contexts/UserContext";
+import Toast from "react-native-toast-message";
 
 export default function UserLayout() {
   const { user } = useAuth();
@@ -19,15 +20,22 @@ export default function UserLayout() {
     const socket = getSocket();
     
     socket.on("trip_cancelled", () => {
+      Toast.show({type: "success", text1: "Trip cancelled by companion"});
+     
       setTrip(null)
       setSelectedCompanion(null)
       setCompanions([])
       setPickup(null)
       setStep(1)
     });
-  
+    
+    socket.on("trip_accepted", ({trip}) => {
+      Toast.show({type: "success", text1: "Trip accepted, companion on the way"});
+      setTrip(trip)
+    })
     return () => {
       socket.off("trip_cancelled")
+      socket.off("trip_accepted")
     }
   }, []);
   

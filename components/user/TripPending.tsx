@@ -6,8 +6,9 @@ import { Ionicons } from "@expo/vector-icons";
 import { BASE_URL } from '@/env.js'
 import { useAuth } from '@/contexts/AuthContext'
 import axios from 'axios'
+import Toast from "react-native-toast-message";
 
-export default function TripNotification() {
+export default function TripPending() {
   const { trip, setTrip, selectedCompanion, setSelectedCompanion, setCompanions } = useTrip();
   const { setStep, setPickup } = useUser();
   const { token } = useAuth();
@@ -19,8 +20,7 @@ export default function TripNotification() {
         { tripId: trip._id },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-  
-      Alert.alert("Success", data.message);
+      Toast.show({type: "success", text1: "You cancelled trip."});
       
       setTrip(null)
       setSelectedCompanion(null)
@@ -28,7 +28,7 @@ export default function TripNotification() {
       setPickup(null)
       setStep(1)
     } catch (err) {
-      Alert.alert("Error", err.response?.data?.message || "Cancel failed");
+      Toast.show({type: "error", text1: err.response?.data?.message || "Cancel failed"});
     }
   };
   

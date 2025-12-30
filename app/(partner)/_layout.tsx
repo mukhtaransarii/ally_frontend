@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useTrip } from "@/contexts/TripContext";
 import { usePartner } from "@/contexts/PartnerContext";
 import { getSocket } from "@/utils/socket";
+import Toast from "react-native-toast-message";
 
 export default function PartnerLayout() {
   const { user } = useAuth();
@@ -19,10 +20,12 @@ export default function PartnerLayout() {
     const socket = getSocket();
     
     socket.on("trip_notification", ({trip}) => {
+      Toast.show({type: "success", text1: "New trip for you"});
       setTrip(trip);
     });
     
     socket.on("trip_cancelled", () => {
+      Toast.show({type: "success", text1: "Trip cancelled by user"});
       setTrip(null);
     });
   

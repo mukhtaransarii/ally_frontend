@@ -8,20 +8,16 @@ import { reverseGeocode } from "@/utils/SearchAddress";
 import { useUser } from "@/contexts/UserContext";
 import { useTrip } from "@/contexts/TripContext";
 import { BASE_URL } from "@/env.js";
-
+import Toast from "react-native-toast-message";
 
 export default function LocationPicker() {
   const { pickup, setPickup, setStep } = useUser();
   const { setCompanions } = useTrip();
   const [loadingPickup, setLoadingPickup] = useState(true);
-  const [message, setMessage] = useState("");
   
   // Fetch GPS location and reverse geocode on mount
   useEffect(() => {
-    if (pickup) {
-      setLoadingPickup(false);
-      return;
-    }
+    if (pickup) return setLoadingPickup(false);
     
     const fetchPickup = async () => {
       setLoadingPickup(true);
@@ -40,17 +36,19 @@ export default function LocationPicker() {
 
 
   const handleContinue = async () => {
-    if (!pickup) return Alert.alert("Pickup location not set");
+    if (!pickup) return Toast.show({ type: "error", text1: "Pickup location not set" });
+   
     try {
-      const { data } = await axios.post(`${BASE_URL}/companion/nearest`, { lat: pickup.lat, lng: pickup.lng });
-      
-      if (!data.success) return setMessage(data.message); 
-      if (data.companions.length === 0) return setMessage(data.message);
-
-      setMessage("");
-      setCompanions(data.companions);
+      const { data } = await axios.post(`${BASE_URL}/companion/nearest`, { lat: pickup.lat, lng: pickup.lng});
+        
+      Toast.show({ type: data.success ? "success" : "error", text1: data.message,});
+     
+      if (!data.success) return;
+     
+      setCompanions(data.companions || []);
       setStep(2);
     } catch (err) {
+      Toast.show({ type: "error", text1: "Server error. Try again." });
       console.log("Error finding companions:", err);
     }
   };
@@ -85,9 +83,6 @@ export default function LocationPicker() {
             </Text>
           </TouchableOpacity>
         </View>
-        
-        {/* Error Message */}
-        {message && <Text className="text-red-500 text-sm mt-1">{message}</Text>}
       </View>
       
     </View>

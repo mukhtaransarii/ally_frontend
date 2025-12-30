@@ -1,8 +1,8 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { saveSecure, getSecure, deleteSecure } from "@/hooks/useSecureStore";
 import axios from "axios";
+import * as SecureStore from "expo-secure-store";
 import { BASE_URL } from "@/env.js";
-import { connectSocket, disconnectSocket } from '@/utils/socket'
+import { connectSocket, disconnectSocket } from "@/utils/socket";
 
 const AuthContext = createContext(null);
 
@@ -10,56 +10,54 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
-  console.log('user from context ', user)
+  
+  console.log('AuthContext token :', token)
   
   useEffect(() => {
-    if (user && user._id) {
-      connectSocket(user._id);
-    }
+    if (user?._id) connectSocket(user._id);
+    return () => disconnectSocket();
   }, [user?._id]);
 
   const loadAuth = async () => {
-    const savedToken = await getSecure("token");
-    if (!savedToken) {
-      setLoading(false);
-      return;
-    }
-  
+    const savedToken = await SecureStore.getItemAsync("token");
+    if (!savedToken) return setLoading(false);
+
     try {
       const { data } = await axios.get(`${BASE_URL}/api/user/me`, {
         headers: { Authorization: `Bearer ${savedToken}` },
       });
+
       setUser(data.user);
       setToken(savedToken);
-      await saveSecure("user", JSON.stringify(data.user));
-    } catch (e) {
-      await deleteSecure("user");
-      await deleteSecure("token");
+      await SecureStore.setItemAsync("user", JSON.stringify(data.user));
+    } catch {
+      await SecureStore.deleteItemAsync("user");
+      await SecureStore.deleteItemAsync("token");
       setUser(null);
       setToken(null);
     } finally {
-      setLoading(false); // <-- only mark loading done here
+      setLoading(false);
     }
   };
-  
-  const updateUser = async (userData) => {
-    setUser(userData);
-    await saveSecure("user", JSON.stringify(userData));
-  };
-  
+
   const login = async (userData, tokenData) => {
     setUser(userData);
     setToken(tokenData);
-    await saveSecure("user", JSON.stringify(userData));
-    await saveSecure("token", tokenData);
+    await SecureStore.setItemAsync("user", JSON.stringify(userData));
+    await SecureStore.setItemAsync("token", tokenData);
+  };
+
+  const updateUser = async (userData) => {
+    setUser(userData);
+    await SecureStore.setItemAsync("user", JSON.stringify(userData));
   };
 
   const logout = async () => {
     disconnectSocket();
     setUser(null);
     setToken(null);
-    await deleteSecure("user");
-    await deleteSecure("token");
+    await SecureStore.deleteItemAsync("user");
+    await SecureStore.deleteItemAsync("token");
   };
 
   useEffect(() => {
@@ -68,14 +66,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{
-        user,
-        token,
-        loading,
-        login,
-        logout,
-        updateUser,
-      }}
+      value={{ user, token, loading, login, logout, updateUser }}
     >
       {children}
     </AuthContext.Provider>

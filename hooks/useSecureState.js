@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { saveSecure, getSecure } from "./useSecureStore";
+import * as SecureStore from "expo-secure-store";
 
 export default function useSecureState(key, initialValue) {
   const [state, setState] = useState(initialValue);
@@ -9,7 +9,7 @@ export default function useSecureState(key, initialValue) {
   useEffect(() => {
     (async () => {
       try {
-        const stored = await getSecure(key);
+        const stored = await SecureStore.getItemAsync(key);
         if (stored !== null) setState(JSON.parse(stored));
       } catch (err) {
         console.log(`Error reading ${key} from secure storage:`, err);
@@ -24,7 +24,7 @@ export default function useSecureState(key, initialValue) {
 
     prevRef.current = state;
 
-    saveSecure(key, JSON.stringify(state)).catch((err) =>
+    SecureStore.setItemAsync(key, JSON.stringify(state)).catch((err) =>
       console.log(`Error saving ${key} to secure storage:`, err)
     );
 
