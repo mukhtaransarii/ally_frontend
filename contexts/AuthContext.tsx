@@ -3,6 +3,7 @@ import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 import { BASE_URL } from "@/env.js";
 import { connectSocket, disconnectSocket } from "@/utils/socket";
+import { initBaseUrl } from '@/env.js'
 
 const AuthContext = createContext(null);
 
@@ -11,7 +12,7 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
   
-  console.log('AuthContext token :', token)
+  console.log('AuthContext user :', user?.email)
   
   useEffect(() => {
     if (user?._id) connectSocket(user._id);
@@ -61,7 +62,11 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    loadAuth();
+    async function setup() {
+      //await initBaseUrl();
+      loadAuth();
+    }
+    setup();
   }, []);
 
   return (

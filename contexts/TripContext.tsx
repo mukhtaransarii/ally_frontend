@@ -1,21 +1,28 @@
-import { createContext, useContext } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import useSecureState from "@/hooks/useSecureState";
 
 const TripContext = createContext();
 
 export const TripProvider = ({ children }) => {
   const [companions, setCompanions] = useSecureState("companions", []); 
-  const [selectedCompanion, setSelectedCompanion] = useSecureState("selectedCompanion", null); 
   const [trip, setTrip] = useSecureState("trip", null); 
+  const [companionLocation, setCompanionLocation] = useState(null);
   
-  const [userCreatedTrip, setUserCreatedTrip] = useSecureState("userCreatedTrip", null); 
-
+  // init
+  useEffect(() => {
+    if (trip?.companion?.lat && trip?.companion?.lng) {
+      setCompanionLocation({
+        lat: trip.companion.lat,
+        lng: trip.companion.lng
+      });
+    }
+  }, [trip]);
+  
   return (
     <TripContext.Provider value={{ 
        companions, setCompanions,
-       selectedCompanion, setSelectedCompanion,
        trip, setTrip,
-       userCreatedTrip, setUserCreatedTrip,
+       companionLocation, setCompanionLocation,
     }}>
       {children}
     </TripContext.Provider>

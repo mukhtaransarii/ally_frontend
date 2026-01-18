@@ -11,23 +11,23 @@ import TripPending from '@/components/user/TripPending'
 
 export default function UserMainPage() {
   const { step, pickup } = useUser();
-  const { companions, selectedCompanion, trip } = useTrip();
+  const { companions, trip, companionLocation } = useTrip();
   const { user, token } = useAuth(); 
   
-  const { routeCoords } = usePolyline(pickup, selectedCompanion); // pass props
+  const { routeCoords } = usePolyline(pickup, companionLocation);
   
   
   return (
     <View className="flex-1">
       <MapView
         marker1={pickup}
-        marker2={selectedCompanion}
+        marker2={companionLocation}
         polyline={routeCoords}
       /> 
       
       {step === 1 && (!pickup || companions?.length === 0) && <LocationPicker />} 
       {step === 2 && pickup && companions?.length > 0 && <TripSummary/> }
-      {step === 3 && trip?.status === 'pending' && <TripPending/>}
+      {step === 3 && trip && <TripPending/>}
     </View>
   );
 }

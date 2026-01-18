@@ -9,10 +9,10 @@ import axios from 'axios'
 import Toast from "react-native-toast-message";
 
 export default function TripPending() {
-  const { trip, setTrip, selectedCompanion, setSelectedCompanion, setCompanions } = useTrip();
-  const { setStep, setPickup } = useUser();
+  const { trip, setTrip, setCompanions } = useTrip();
+  const { setStep } = useUser();
   const { token } = useAuth();
-  
+
   const handleCancleTrip = async () => {
     try {
       const { data } = await axios.post(
@@ -23,9 +23,6 @@ export default function TripPending() {
       Toast.show({type: "success", text1: "You cancelled trip."});
       
       setTrip(null)
-      setSelectedCompanion(null)
-      setCompanions([])
-      setPickup(null)
       setStep(1)
     } catch (err) {
       Toast.show({type: "error", text1: err.response?.data?.message || "Cancel failed"});
@@ -56,17 +53,17 @@ export default function TripPending() {
       </View>
       
       <View className="flex-row gap-2 items-center bg-white shadow-xl rounded-xl p-3 border border-gray-200">
-         <Image source={{ uri: selectedCompanion.avatar }} className="w-14 h-14 rounded-full"/>
+         <Image source={{ uri: trip.companion.avatar }} className="w-14 h-14 rounded-full"/>
          
          <View className="flex-1">
            <View className="flex-row items-center gap-2">
-              <Text className="font-semibold text-gray-900">{selectedCompanion.name}</Text>
+              <Text className="font-semibold text-gray-900">{trip.companion.name}</Text>
               {/* Gender icon */}
-              {selectedCompanion.gender === "male" ? (
+              {trip.companion.gender === "male" ? (
                   <Ionicons name="male" size={12} color="#45B6FE" />
-                ) : selectedCompanion.gender === "female" ? (
+                ) : trip.companion.gender === "female" ? (
                   <Ionicons name="female" size={12} color="#FF69B4" />
-                ) : selectedCompanion.gender === "other" ? (
+                ) : trip.companion.gender === "other" ? (
                   <Ionicons name="transgender" size={12} color="#A0A0A0" />
               ) : null }
            </View>
@@ -74,7 +71,7 @@ export default function TripPending() {
            <Text className="text-xs text-gray-400">Location</Text>
            <View className="flex-row items-center gap-1 bg-gray-100 rounded-lg p-2">
              <Ionicons name="location" size={12} color="black" />
-             <Text numberOfLines={3} className="flex-1 text-xs text-gray-600 leading-none">{selectedCompanion.address?.display_name ||"Fetching address..."}</Text>
+             <Text numberOfLines={3} className="flex-1 text-xs text-gray-600 leading-none">{trip.companion.address?.display_name ||"Fetching address..."}</Text>
            </View>
          </View>
      </View>

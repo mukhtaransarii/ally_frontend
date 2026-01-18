@@ -5,16 +5,13 @@ const PartnerContext = createContext();
 
 export const PartnerProvider = ({ children }) => {
   const [partnerLocation, setPartnerLocation] = useSecureState("partnerLocation", null);
-  const [isOnline, setIsOnline] = useSecureState("isOnline", false);
- 
-  const [partnerStep, setPartnerStep] = useSecureState("partnerStep" ,1);   // UI / flow only
+  const [partnerStep, setPartnerStep] = useSecureState("partnerStep" ,1); 
 
   return (
     <PartnerContext.Provider
       value={{
         partnerLocation, setPartnerLocation,
         partnerStep, setPartnerStep,
-        isOnline, setIsOnline,
       }}>
     {children}
     </PartnerContext.Provider>

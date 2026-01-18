@@ -9,6 +9,7 @@ import OTPInput from '@/components/common/OTPInput';
 import { BASE_URL } from '@/env.js'
 import axios from 'axios'
 import { User, Users } from 'lucide-react-native';
+import Toast from "react-native-toast-message";
 
 export default function Login() {
   const router = useRouter();
@@ -28,8 +29,9 @@ export default function Login() {
     try {
       const { data } = await axios.post(`${BASE_URL}/api/user/send-otp`, { email, role });
       if (data.success) { setExists(data.exists); setStep(2); }
-    } catch {
-      Alert.alert('Send OTP Error', 'something went wrong in server');
+    } catch (err) {
+      console.log('send otp err', err)
+      Toast.show({type: 'error', text1: 'Send OTP Error', text2:'something went wrong in server'});
     } finally { setLoading(false); }
   }
 
@@ -44,7 +46,7 @@ export default function Login() {
       await login(data.user, data.token);
       router.replace("/");
     } catch {
-      Alert.alert('Verify OTP Error', 'something went wrong in server');
+      Toast.show({type: 'error', text1: 'Verify OTP Error', text2:'something went wrong in server'});
     } finally { setLoading(false); }
   }
 

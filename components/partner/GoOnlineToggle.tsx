@@ -7,10 +7,23 @@ import { BASE_URL } from "@/env.js";
 import { getCurrentLocation } from "@/utils/getCurrentLocation";
 
 export default function GoOnlineToggle() {
-  const { token } = useAuth();
-  const { partnerLocation, setPartnerLocation, isOnline, setIsOnline } = usePartner();
+  const { token, user } = useAuth();
+  const { partnerLocation, setPartnerLocation } = usePartner();
   const [loading, setLoading] = useState(false);
-
+  const [isOnline, setIsOnline] = useState(false);
+  
+  useEffect(() => {
+    if (typeof user?.active === "boolean") {
+      setIsOnline(user.active);
+  
+      if (user.active && user.lat && user.lng) {
+        setPartnerLocation({ lat: user.lat, lng: user.lng });
+      } else {
+        setPartnerLocation(null);
+      }
+    }
+  }, [user?.active]);
+  
   const toggleOnlineStatus = async () => {
     if (loading) return;
     setLoading(true);
@@ -51,6 +64,7 @@ export default function GoOnlineToggle() {
           )}
         </View>
         <TouchableOpacity
+        disabled={!user || loading}
           onPress={toggleOnlineStatus}
           className={`p-4 px-6 rounded-xl ${isOnline ? "bg-white border border-black" : "bg-black border"}`}
         >

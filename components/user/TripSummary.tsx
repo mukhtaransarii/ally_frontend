@@ -14,8 +14,9 @@ import Toast from "react-native-toast-message";
 export default function TripSummary() {
   const { token } = useAuth();
   const { pickup, setPickup, setStep, step } = useUser();
-  const { companions, setCompanions, selectedCompanion, setSelectedCompanion, setTrip } = useTrip();
-  const [message, setMessage] = useState('')
+  const { companions, setCompanions, setTrip } = useTrip();
+  
+  const [selectedCompanion, setSelectedCompanion] = useState(null)
   
   const { height } = Dimensions.get("window");
 
@@ -52,7 +53,6 @@ export default function TripSummary() {
   const handleBack = async () => {
     setPickup(null);
     setCompanions([]);
-    setSelectedCompanion(null);
     setStep(1);
   };
   
@@ -93,6 +93,9 @@ export default function TripSummary() {
       if(!data.success) return
       
       setTrip(data.trip)
+      
+      //reset persist after create trip
+      setCompanions([])
       setStep(3);
     } catch (e) {
       Toast.show({type: "error", text1: "Error Something went wrong"});
@@ -158,7 +161,7 @@ export default function TripSummary() {
                   <View className="bg-gray-100 rounded-lg p-2 mb-2">
                    <Text className="text-xs mb-1 text-gray-500">Bio</Text>
                    <Text className="text-sm">
-                      {c.bio.trim('').match(/(#[^\s#]+|\S+|\s+)/g)?.map((segment, index) => {
+                      {c?.bio.trim('').match(/(#[^\s#]+|\S+|\s+)/g)?.map((segment, index) => {
                         if (segment.startsWith('#')) {
                           return (
                             <Text key={index} style={{ color: '#1DA1F2' }}>

@@ -9,8 +9,8 @@ import Toast from "react-native-toast-message";
 
 export default function UserLayout() {
   const { user } = useAuth();
-  const { trip, setTrip, selectedCompanion, setSelectedCompanion, setCompanions } = useTrip();
-  const { setStep, setPickup } = useUser();;
+  const { trip, setTrip, setCompanions, setCompanionLocation } = useTrip();
+  const { setStep, setPickup } = useUser();
 
   if (!user || user.role !== "user") {
     return <Redirect href="/auth/login" />;
@@ -22,10 +22,8 @@ export default function UserLayout() {
     socket.on("trip_cancelled", () => {
       Toast.show({type: "success", text1: "Trip cancelled by companion"});
      
+      setCompanionLocation(null)
       setTrip(null)
-      setSelectedCompanion(null)
-      setCompanions([])
-      setPickup(null)
       setStep(1)
     });
     
@@ -33,9 +31,15 @@ export default function UserLayout() {
       Toast.show({type: "success", text1: "Trip accepted, companion on the way"});
       setTrip(trip)
     })
+    
+    socket.on("live_location", ({ lat, lng }) => {
+      setCompanionLocation({ lat: lat, lng: lng});
+    });
+    
     return () => {
       socket.off("trip_cancelled")
       socket.off("trip_accepted")
+      socket.off("live_location")
     }
   }, []);
   
