@@ -53,7 +53,7 @@ export default function TripNotification() {
   
   return (
     <View className="p-4 gap-3 absolute bottom-4 left-4 right-4 bg-white rounded-xl shadow-xl">
-      <View>
+      <View className='flex gap-3'>
         {/* UPPER */}
         <View className="gap-3">
           <View className="flex-row gap-3">
@@ -131,17 +131,17 @@ export default function TripNotification() {
           </View>
         </View>
         
-        <View className="flex-row gap-3">
+       <View className="flex-row gap-3">
           <TouchableOpacity
             onPress={handleCancleTrip}
-            className="flex-1 bg-white border border-gray-200 p-2 rounded-xl"
+            className="flex-1 bg-white border border-gray-200 p-4 rounded-xl"
           >
             <Text className="text-center">Cancel Trip</Text>
           </TouchableOpacity>
            
           <TouchableOpacity
             onPress={handleAcceptTrip}
-            className="flex-1 bg-green-700 p-2 rounded-xl"
+            className="flex-1 bg-green-700 p-4 rounded-xl"
           >
             <Text className="text-white text-center">Accept Trip</Text>
           </TouchableOpacity>

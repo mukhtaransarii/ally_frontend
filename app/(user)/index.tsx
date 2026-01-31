@@ -8,6 +8,7 @@ import MapView from '@/components/MapView'
 import LocationPicker from '@/components/user/LocationPicker'
 import TripSummary from '@/components/user/TripSummary'
 import TripPending from '@/components/user/TripPending'
+import TripAccepted from '@/components/user/TripAccepted'
 
 export default function UserMainPage() {
   const { step, pickup } = useUser();
@@ -27,7 +28,8 @@ export default function UserMainPage() {
       
       {step === 1 && (!pickup || companions?.length === 0) && <LocationPicker />} 
       {step === 2 && pickup && companions?.length > 0 && <TripSummary/> }
-      {step === 3 && trip && <TripPending/>}
+      {step === 3 && trip?.status === 'pending' && <TripPending/>}
+      { trip?.status === 'accepted' && <TripAccepted/>}
     </View>
   );
 }

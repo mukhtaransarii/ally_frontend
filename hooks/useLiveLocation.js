@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import * as Location from "expo-location";
 import { getSocket } from "@/utils/socket";
 

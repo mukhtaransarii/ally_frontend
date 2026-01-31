@@ -71,7 +71,7 @@ export default function TripPending() {
            <Text className="text-xs text-gray-400">Location</Text>
            <View className="flex-row items-center gap-1 bg-gray-100 rounded-lg p-2">
              <Ionicons name="location" size={12} color="black" />
-             <Text numberOfLines={3} className="flex-1 text-xs text-gray-600 leading-none">{trip.companion.address?.display_name ||"Fetching address..."}</Text>
+             <Text numberOfLines={3} className="flex-1 text-xs text-gray-600 leading-none">{trip.companionAddress.display_name ||"Fetching address..."}</Text>
            </View>
          </View>
      </View>
@@ -79,7 +79,7 @@ export default function TripPending() {
       <View className="flex-row gap-3">
         <TouchableOpacity
           onPress={handleCancleTrip}
-          className="flex-1 bg-white border border-red-200 p-2 rounded-xl"
+          className="flex-1 bg-white border border-red-200 p-4 rounded-xl"
          >
            <Text className="text-center">Cancel Trip</Text>
          </TouchableOpacity>

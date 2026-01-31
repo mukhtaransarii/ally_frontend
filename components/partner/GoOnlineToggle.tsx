@@ -62,6 +62,7 @@ export default function GoOnlineToggle() {
               </Text>
             </View>
           )}
+       
         </View>
         <TouchableOpacity
         disabled={!user || loading}

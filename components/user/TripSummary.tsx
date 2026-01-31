@@ -59,7 +59,7 @@ export default function TripSummary() {
   const HandleConfirm = () => {
     Alert.alert(
      "Confirm Trip",
-     "would you like to.continue trip?",
+     "would you like to continue trip?",
      [
        {
          text: 'Cancel',
@@ -82,6 +82,7 @@ export default function TripSummary() {
       const { data } = await axios.post(`${BASE_URL}/api/trip/confirm`,
         {
           companionId: selectedCompanion._id,
+          companionAddress: selectedCompanion?.address,
           pickup,
           distance: selectedCompanion.distance,
           duration: selectedCompanion.duration

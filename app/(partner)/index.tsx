@@ -7,17 +7,18 @@ import { useTrip } from '@/contexts/TripContext'
 import { useAuth } from "@/contexts/AuthContext"
 import { getSocket } from '@/utils/socket'
 import usePolyline from '@/hooks/usePolyline'
-import useLiveLocation from '@/hooks/useLiveLocation'
+import { useLiveLocation } from '@/hooks/useLiveLocation'
 import MapView from '@/components/MapView';
 import GoOnlineToggle from '@/components/partner/GoOnlineToggle';
 import TripNotification from '@/components/partner/TripNotification';
+import TripAccepted from '@/components/partner/TripAccepted';
 
 export default function Index() {
   const { partnerStep, setPartnerStep, partnerLocation, } = usePartner();
   const { setTrip, trip, userCreatedTrip, setUserCreatedTrip } = useTrip(); 
   const { user, token } = useAuth(); 
   
-  //useLiveLocation(trip, trip?.status === "accepted");
+  useLiveLocation(trip, trip?.status === "accepted");
   const { routeCoords } = usePolyline(partnerLocation, trip?.pickup); // pass props
   
   return (
@@ -29,7 +30,8 @@ export default function Index() {
       />
       
       {partnerStep === 1 && !trip &&  <GoOnlineToggle/> }
-      {trip && <TripNotification/>}
+      { trip?.status === 'pending' && <TripNotification/>}
+      { trip?.status === 'accepted' && <TripAccepted/>}
     </View>
   );
 }

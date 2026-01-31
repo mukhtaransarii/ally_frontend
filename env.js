@@ -1,7 +1,7 @@
 import * as Network from "expo-network";
 
 // My Home router ip
-export let BASE_URL = "http://172.16.2.33:5000"; 
+export let BASE_URL = "http://172.16.2.34:5000"; 
 
 // initialize dynamic IP at app startup
 export async function initBaseUrl() {
